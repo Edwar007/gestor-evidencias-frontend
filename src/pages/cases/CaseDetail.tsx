@@ -2,6 +2,30 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Divider,
+  Stack,
+  Typography,
+} from "@mui/material";
+
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
+import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
+import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+
+import { useAuth } from "../../context/useAuth";
+import type { Case } from "../../types/case.types";
+
+import {
   obtenerCaso,
   eliminarCaso,
   obtenerUploadUrl,
@@ -10,20 +34,18 @@ import {
   obtenerDownloadUrl,
 } from "../../services/case.service";
 
-import { useAuth } from "../../context/useAuth";
-import type { Case } from "../../types/case.types";
-
 export const CaseDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = useAuth();
   const navigate = useNavigate();
 
   const [caso, setCaso] = useState<Case | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
 
   const [error, setError] = useState("");
   const [fileError, setFileError] = useState("");
@@ -37,9 +59,10 @@ export const CaseDetail = () => {
         setError("");
 
         const data = await obtenerCaso(id, token);
+
         setCaso(data);
       } catch {
-        setError("No se pudo obtener el caso");
+        setError("No se pudo obtener el caso.");
       } finally {
         setLoading(false);
       }
@@ -65,7 +88,7 @@ export const CaseDetail = () => {
 
       navigate("/cases");
     } catch {
-      setError("No se pudo eliminar el caso");
+      setError("No se pudo eliminar el caso.");
     } finally {
       setDeleting(false);
     }
@@ -107,7 +130,7 @@ export const CaseDetail = () => {
       setCaso(casoActualizado);
       setFile(null);
     } catch {
-      setFileError("No se pudo subir el archivo");
+      setFileError("No se pudo subir el archivo.");
     } finally {
       setUploading(false);
     }
@@ -126,114 +149,408 @@ export const CaseDetail = () => {
 
       window.open(downloadUrl, "_blank");
     } catch {
-      setFileError("No se pudo obtener el archivo");
+      setFileError("No se pudo obtener el archivo.");
     }
   };
 
+  const getStatusLabel = (estado: Case["estado"]) => {
+    return estado === "OPEN" ? "Abierto" : "Cerrado";
+  };
+
+  const getStatusColor = (
+    estado: Case["estado"]
+  ): "success" | "default" => {
+    return estado === "OPEN" ? "success" : "default";
+  };
+
   if (loading) {
-    return <p>Cargando caso...</p>;
-  }
-
-  if (error) {
     return (
-      <main>
-        <p>{error}</p>
-
-        <button
-          type="button"
-          onClick={() => navigate("/cases")}
-        >
-          Volver
-        </button>
-      </main>
+      <Box
+        sx={{
+          minHeight: "50vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
   }
 
-  if (!caso) {
-    return <p>Caso no encontrado</p>;
+  if (error || !caso) {
+    return (
+      <Stack spacing={2}>
+        <Alert severity="error">
+          {error || "Caso no encontrado."}
+        </Alert>
+
+        <Box>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate("/cases")}
+          >
+            Volver a casos
+          </Button>
+        </Box>
+      </Stack>
+    );
   }
 
   return (
-    <main>
-      <h1>{caso.titulo}</h1>
+    <Stack spacing={3}>
+      <Box>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate("/cases")}
+          sx={{ mb: 2 }}
+        >
+          Volver a casos
+        </Button>
 
-      <p>{caso.descripcion}</p>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            mb: 0.5,
+          }}
+        >
+          Detalle del caso
+        </Typography>
 
-      <p>
-        Estado: <strong>{caso.estado}</strong>
-      </p>
+        <Typography
+          variant="body1"
+          color="text.secondary"
+        >
+          Consulta la información y administra la evidencia.
+        </Typography>
+      </Box>
 
-      <p>Creado: {caso.createdAt}</p>
-      <p>Actualizado: {caso.updatedAt}</p>
+      <Card>
+        <CardContent
+          sx={{
+            p: {
+              xs: 3,
+              sm: 4,
+            },
+          }}
+        >
+          <Stack spacing={3}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: {
+                  xs: "column",
+                  sm: "row",
+                },
+                alignItems: {
+                  xs: "flex-start",
+                  sm: "center",
+                },
+                justifyContent: "space-between",
+                gap: 2,
+              }}
+            >
+              <Box>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 1,
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {caso.titulo}
+                </Typography>
 
-      <hr />
+                <Chip
+                  label={getStatusLabel(caso.estado)}
+                  color={getStatusColor(caso.estado)}
+                  size="small"
+                />
+              </Box>
 
-      <h2>Archivo</h2>
+              <Stack
+                spacing={1}
+                sx={{
+                  flexDirection: "row",
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  startIcon={<EditOutlinedIcon />}
+                  onClick={() =>
+                    navigate(`/cases/${caso.id}/edit`)
+                  }
+                  disabled={deleting || uploading}
+                >
+                  Editar
+                </Button>
 
-      {caso.fileKey ? (
-        <div>
-          <p>Archivo adjunto ✓</p>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleDelete}
+                  disabled={deleting || uploading}
+                >
+                  {deleting ? "Eliminando..." : "Eliminar"}
+                </Button>
+              </Stack>
+            </Box>
 
-          <button
-            type="button"
-            onClick={handleDownload}
-            disabled={uploading || deleting}
-          >
-            Abrir archivo
-          </button>
-        </div>
-      ) : (
-        <p>No hay archivo adjunto.</p>
-      )}
+            <Divider />
 
-      <input
-        type="file"
-        accept=".jpg,.jpeg,.png,.pdf"
-        onChange={handleFileChange}
-        disabled={uploading || deleting}
-      />
+            <Box>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                sx={{ mb: 1 }}
+              >
+                Descripción
+              </Typography>
 
-      {file && (
-        <div>
-          <p>Archivo seleccionado: {file.name}</p>
+              <Typography
+                variant="body1"
+                sx={{
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                }}
+              >
+                {caso.descripcion}
+              </Typography>
+            </Box>
 
-          <button
-            type="button"
-            onClick={handleUpload}
-            disabled={uploading}
-          >
-            {uploading ? "Subiendo..." : "Subir archivo"}
-          </button>
-        </div>
-      )}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr",
+                },
+                gap: 2,
+              }}
+            >
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                >
+                  Fecha de creación
+                </Typography>
 
-      {fileError && <p>{fileError}</p>}
+                <Typography variant="body2">
+                  {new Date(
+                    caso.createdAt
+                  ).toLocaleString("es-CO")}
+                </Typography>
+              </Box>
 
-      <hr />
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                >
+                  Última actualización
+                </Typography>
 
-      <button
-        type="button"
-        onClick={() => navigate(`/cases/${caso.id}/edit`)}
-        disabled={uploading || deleting}
-      >
-        Editar
-      </button>
+                <Typography variant="body2">
+                  {new Date(
+                    caso.updatedAt
+                  ).toLocaleString("es-CO")}
+                </Typography>
+              </Box>
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
 
-      <button
-        type="button"
-        onClick={handleDelete}
-        disabled={deleting || uploading}
-      >
-        {deleting ? "Eliminando..." : "Eliminar"}
-      </button>
+      <Card>
+        <CardContent
+          sx={{
+            p: {
+              xs: 3,
+              sm: 4,
+            },
+          }}
+        >
+          <Stack spacing={3}>
+            <Box>
+              <Stack
+                spacing={1}
+                sx={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <AttachFileOutlinedIcon color="primary" />
 
-      <button
-        type="button"
-        onClick={() => navigate("/cases")}
-        disabled={deleting || uploading}
-      >
-        Volver
-      </button>
-    </main>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 700 }}
+                >
+                  Evidencia
+                </Typography>
+              </Stack>
+
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: 0.5 }}
+              >
+                Adjunta una imagen JPG, PNG o un documento PDF.
+              </Typography>
+            </Box>
+
+            {caso.fileKey ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: {
+                    xs: "column",
+                    sm: "row",
+                  },
+                  alignItems: {
+                    xs: "stretch",
+                    sm: "center",
+                  },
+                  justifyContent: "space-between",
+                  gap: 2,
+                  p: 2,
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  backgroundColor: "background.default",
+                }}
+              >
+                <Stack
+                  spacing={1}
+                  sx={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    minWidth: 0,
+                  }}
+                >
+                  <InsertDriveFileOutlinedIcon color="action" />
+
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 600,
+                      }}
+                    >
+                      Evidencia adjunta
+                    </Typography>
+
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                    >
+                      El archivo está almacenado de forma privada.
+                    </Typography>
+                  </Box>
+                </Stack>
+
+                <Button
+                  variant="outlined"
+                  startIcon={<OpenInNewOutlinedIcon />}
+                  onClick={handleDownload}
+                  disabled={uploading}
+                >
+                  Abrir archivo
+                </Button>
+              </Box>
+            ) : (
+              <Alert severity="info">
+                Este caso todavía no tiene una evidencia adjunta.
+              </Alert>
+            )}
+
+            <Divider />
+
+            <Box>
+              <Button
+                component="label"
+                variant="outlined"
+                startIcon={<CloudUploadOutlinedIcon />}
+                disabled={uploading || deleting}
+              >
+                Seleccionar archivo
+                <input
+                  hidden
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={handleFileChange}
+                />
+              </Button>
+
+              {file && (
+                <Stack
+                  spacing={2}
+                  sx={{
+                    mt: 2,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      backgroundColor: "background.default",
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 600 }}
+                    >
+                      {file.name}
+                    </Typography>
+
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                    >
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </Typography>
+                  </Box>
+
+                  <Button
+                    variant="contained"
+                    startIcon={
+                      uploading ? (
+                        <CircularProgress
+                          size={18}
+                          color="inherit"
+                        />
+                      ) : (
+                        <CloudUploadOutlinedIcon />
+                      )
+                    }
+                    onClick={handleUpload}
+                    disabled={uploading}
+                  >
+                    {uploading
+                      ? "Subiendo..."
+                      : caso.fileKey
+                        ? "Reemplazar evidencia"
+                        : "Subir evidencia"}
+                  </Button>
+                </Stack>
+              )}
+
+              {fileError && (
+                <Alert
+                  severity="error"
+                  sx={{ mt: 2 }}
+                  onClose={() => setFileError("")}
+                >
+                  {fileError}
+                </Alert>
+              )}
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
+    </Stack>
   );
 };
