@@ -1,14 +1,12 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { Login } from "../pages/auth/Login";
 import { Register } from "../pages/auth/Register";
 import { Dashboard } from "../pages/dashboard/Dashboard";
-
 import { Cases } from "../pages/cases/Cases";
 import { CreateCase } from "../pages/cases/CreateCase";
 import { CaseDetail } from "../pages/cases/CaseDetail";
 import { EditCase } from "../pages/cases/EditCase";
-
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AppLayout } from "../components/layout/AppLayout";
 
@@ -16,6 +14,10 @@ export const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* Ruta inicial */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
         {/* Rutas públicas */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -36,6 +38,7 @@ export const AppRoutes = () => {
           path="*"
           element={<div>Página no encontrada</div>}
         />
+
       </Routes>
     </BrowserRouter>
   );
