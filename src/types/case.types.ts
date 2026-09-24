@@ -21,3 +21,18 @@ export interface UpdateCaseData {
   descripcion?: string;
   estado?: CaseStatus;
 }
+
+export interface UploadFileData {
+  fileName: string;
+  contentType: string;
+}
+
+export interface UploadUrlResponse {
+  uploadUrl: string;
+  key: string;
+  expiresIn: number;
+}
+
+export interface CompleteFileData {
+  key: string;
+}
