@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -23,6 +24,8 @@ import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 
 import { useAuth } from "../../context/useAuth";
+import { ApiError } from "../../errors/api.error";
+
 import type { Case } from "../../types/case.types";
 
 import {
@@ -61,8 +64,12 @@ export const CaseDetail = () => {
         const data = await obtenerCaso(id, token);
 
         setCaso(data);
-      } catch {
-        setError("No se pudo obtener el caso.");
+      } catch (error) {
+        if (error instanceof ApiError) {
+          setError(error.message);
+        } else {
+          setError("No se pudo obtener el caso.");
+        }
       } finally {
         setLoading(false);
       }
@@ -87,8 +94,12 @@ export const CaseDetail = () => {
       await eliminarCaso(id, token);
 
       navigate("/cases");
-    } catch {
-      setError("No se pudo eliminar el caso.");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setError(error.message);
+      } else {
+        setError("No se pudo eliminar el caso.");
+      }
     } finally {
       setDeleting(false);
     }
@@ -129,8 +140,12 @@ export const CaseDetail = () => {
 
       setCaso(casoActualizado);
       setFile(null);
-    } catch {
-      setFileError("No se pudo subir el archivo.");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setFileError(error.message);
+      } else {
+        setFileError("No se pudo subir el archivo.");
+      }
     } finally {
       setUploading(false);
     }
@@ -148,8 +163,12 @@ export const CaseDetail = () => {
       );
 
       window.open(downloadUrl, "_blank");
-    } catch {
-      setFileError("No se pudo obtener el archivo.");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setFileError(error.message);
+      } else {
+        setFileError("No se pudo obtener el archivo.");
+      }
     }
   };
 
@@ -477,6 +496,7 @@ export const CaseDetail = () => {
                 disabled={uploading || deleting}
               >
                 Seleccionar archivo
+
                 <input
                   hidden
                   type="file"

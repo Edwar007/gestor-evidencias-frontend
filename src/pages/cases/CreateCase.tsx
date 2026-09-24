@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -17,7 +18,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 
 import { useAuth } from "../../context/useAuth";
+
 import { crearCaso } from "../../services/case.service";
+
+import { ApiError } from "../../errors/api.error";
 
 export const CreateCase = () => {
   const { token } = useAuth();
@@ -25,7 +29,6 @@ export const CreateCase = () => {
 
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,7 +36,6 @@ export const CreateCase = () => {
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
-
     setError("");
 
     if (!titulo.trim()) {
@@ -47,7 +49,9 @@ export const CreateCase = () => {
     }
 
     if (!token) {
-      setError("Tu sesión ha expirado. Inicia sesión nuevamente.");
+      setError(
+        "Tu sesión ha expirado. Inicia sesión nuevamente."
+      );
       return;
     }
 
@@ -63,8 +67,14 @@ export const CreateCase = () => {
       );
 
       navigate(`/cases/${caso.id}`);
-    } catch {
-      setError("No se pudo crear el caso. Inténtalo nuevamente.");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setError(error.message);
+      } else {
+        setError(
+          "No se pudo crear el caso. Inténtalo nuevamente."
+        );
+      }
     } finally {
       setLoading(false);
     }

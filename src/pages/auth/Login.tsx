@@ -19,6 +19,7 @@ import FolderSharedOutlinedIcon from "@mui/icons-material/FolderSharedOutlined";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/useAuth";
+import { ApiError } from "../../errors/api.error";
 
 export const Login = () => {
   const { login } = useAuth();
@@ -51,10 +52,14 @@ export const Login = () => {
       });
 
       navigate("/dashboard");
-    } catch {
-      setError(
-        "No se pudo iniciar sesión. Verifica tu correo y contraseña."
-      );
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setError(error.message);
+      } else {
+        setError(
+          "No se pudo iniciar sesión. Verifica tu correo y contraseña."
+        );
+      }
     } finally {
       setLoading(false);
     }

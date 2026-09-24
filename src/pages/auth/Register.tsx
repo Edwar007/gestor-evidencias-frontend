@@ -19,6 +19,7 @@ import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/useAuth";
+import { ApiError } from "../../errors/api.error";
 
 export const Register = () => {
   const { register } = useAuth();
@@ -62,10 +63,14 @@ export const Register = () => {
       });
 
       navigate("/login");
-    } catch {
-      setError(
-        "No se pudo crear la cuenta. Verifica los datos e inténtalo nuevamente."
-      );
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setError(error.message);
+      } else {
+        setError(
+          "No se pudo crear la cuenta. Inténtalo nuevamente."
+        );
+      }
     } finally {
       setLoading(false);
     }

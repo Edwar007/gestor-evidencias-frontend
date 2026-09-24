@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -23,6 +24,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useAuth } from "../../context/useAuth";
 import { listarCasos } from "../../services/case.service";
 import type { Case } from "../../types/case.types";
+import { ApiError } from "../../errors/api.error";
 
 export const Dashboard = () => {
   const { user, token } = useAuth();
@@ -42,8 +44,12 @@ export const Dashboard = () => {
 
         const data = await listarCasos(token);
         setCasos(data);
-      } catch {
-        setError("No se pudieron cargar los casos.");
+      } catch (error) {
+        if (error instanceof ApiError) {
+          setError(error.message);
+        } else {
+          setError("No se pudieron cargar los casos.");
+        }
       } finally {
         setLoading(false);
       }
@@ -213,7 +219,7 @@ export const Dashboard = () => {
                     color: "warning.main",
                   }}
                 >
-                  <CheckCircleIcon  />
+                  <CheckCircleIcon />
                 </Box>
 
                 <Box>

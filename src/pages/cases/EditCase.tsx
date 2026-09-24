@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -18,11 +19,15 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 
 import { useAuth } from "../../context/useAuth";
+
 import {
   obtenerCaso,
   actualizarCaso,
 } from "../../services/case.service";
+
 import type { CaseStatus } from "../../types/case.types";
+
+import { ApiError } from "../../errors/api.error";
 
 export const EditCase = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,7 +40,6 @@ export const EditCase = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -51,8 +55,12 @@ export const EditCase = () => {
         setTitulo(caso.titulo);
         setDescripcion(caso.descripcion);
         setEstado(caso.estado);
-      } catch {
-        setError("No se pudo obtener el caso.");
+      } catch (error) {
+        if (error instanceof ApiError) {
+          setError(error.message);
+        } else {
+          setError("No se pudo obtener el caso.");
+        }
       } finally {
         setLoading(false);
       }
@@ -65,7 +73,6 @@ export const EditCase = () => {
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
-
     setError("");
 
     if (!titulo.trim()) {
@@ -99,10 +106,14 @@ export const EditCase = () => {
       );
 
       navigate(`/cases/${id}`);
-    } catch {
-      setError(
-        "No se pudo actualizar el caso. Inténtalo nuevamente."
-      );
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setError(error.message);
+      } else {
+        setError(
+          "No se pudo actualizar el caso. Inténtalo nuevamente."
+        );
+      }
     } finally {
       setSaving(false);
     }

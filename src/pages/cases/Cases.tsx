@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -23,11 +24,15 @@ import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
 import FolderOpenOutlinedIcon from "@mui/icons-material/FolderOpenOutlined";
 
 import { useAuth } from "../../context/useAuth";
+
 import {
   eliminarCaso,
   listarCasos,
 } from "../../services/case.service";
+
 import type { Case } from "../../types/case.types";
+
+import { ApiError } from "../../errors/api.error";
 
 export const Cases = () => {
   const { token } = useAuth();
@@ -48,8 +53,12 @@ export const Cases = () => {
 
         const data = await listarCasos(token);
         setCasos(data);
-      } catch {
-        setError("No se pudieron cargar los casos.");
+      } catch (error) {
+        if (error instanceof ApiError) {
+          setError(error.message);
+        } else {
+          setError("No se pudieron cargar los casos.");
+        }
       } finally {
         setLoading(false);
       }
@@ -76,8 +85,12 @@ export const Cases = () => {
       setCasos((casosActuales) =>
         casosActuales.filter((caso) => caso.id !== id)
       );
-    } catch {
-      setError("No se pudo eliminar el caso.");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setError(error.message);
+      } else {
+        setError("No se pudo eliminar el caso.");
+      }
     } finally {
       setDeletingId(null);
     }
@@ -333,7 +346,7 @@ export const Cases = () => {
                         {deletingId === caso.id ? (
                           <CircularProgress size={22} />
                         ) : (
-                          <DeleteIcon  />
+                          <DeleteIcon />
                         )}
                       </IconButton>
                     </Tooltip>

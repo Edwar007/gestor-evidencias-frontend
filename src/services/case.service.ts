@@ -1,3 +1,5 @@
+import { apiRequest } from "./api.service";
+
 import type {
   Case,
   CreateCaseData,
@@ -7,57 +9,34 @@ import type {
   CompleteFileData,
 } from "../types/case.types";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-const getHeaders = (token: string) => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${token}`,
-});
-
-export const listarCasos = async (token: string): Promise<Case[]> => {
-  const response = await fetch(`${API_URL}/cases`, {
+export const listarCasos = async (
+  token: string
+): Promise<Case[]> => {
+  return apiRequest<Case[]>("/cases", {
     method: "GET",
-    headers: getHeaders(token),
+    token,
   });
-
-  if (!response.ok) {
-    throw new Error("No se pudieron obtener los casos");
-  }
-
-  return response.json();
 };
 
 export const obtenerCaso = async (
   id: string,
   token: string
 ): Promise<Case> => {
-  const response = await fetch(`${API_URL}/cases/${id}`, {
+  return apiRequest<Case>(`/cases/${id}`, {
     method: "GET",
-    headers: getHeaders(token),
+    token,
   });
-
-  if (!response.ok) {
-    throw new Error("No se pudo obtener el caso");
-  }
-
-  return response.json();
 };
 
 export const crearCaso = async (
   data: CreateCaseData,
   token: string
 ): Promise<Case> => {
-  const response = await fetch(`${API_URL}/cases`, {
+  return apiRequest<Case>("/cases", {
     method: "POST",
-    headers: getHeaders(token),
+    token,
     body: JSON.stringify(data),
   });
-
-  if (!response.ok) {
-    throw new Error("No se pudo crear el caso");
-  }
-
-  return response.json();
 };
 
 export const actualizarCaso = async (
@@ -65,31 +44,21 @@ export const actualizarCaso = async (
   data: UpdateCaseData,
   token: string
 ): Promise<Case> => {
-  const response = await fetch(`${API_URL}/cases/${id}`, {
+  return apiRequest<Case>(`/cases/${id}`, {
     method: "PATCH",
-    headers: getHeaders(token),
+    token,
     body: JSON.stringify(data),
   });
-
-  if (!response.ok) {
-    throw new Error("No se pudo actualizar el caso");
-  }
-
-  return response.json();
 };
 
 export const eliminarCaso = async (
   id: string,
   token: string
 ): Promise<void> => {
-  const response = await fetch(`${API_URL}/cases/${id}`, {
+  await apiRequest<void>(`/cases/${id}`, {
     method: "DELETE",
-    headers: getHeaders(token),
+    token,
   });
-
-  if (!response.ok) {
-    throw new Error("No se pudo eliminar el caso");
-  }
 };
 
 export const obtenerUploadUrl = async (
@@ -97,20 +66,14 @@ export const obtenerUploadUrl = async (
   data: UploadFileData,
   token: string
 ): Promise<UploadUrlResponse> => {
-  const response = await fetch(
-    `${API_URL}/cases/${id}/file/upload-url`,
+  return apiRequest<UploadUrlResponse>(
+    `/cases/${id}/file/upload-url`,
     {
       method: "POST",
-      headers: getHeaders(token),
+      token,
       body: JSON.stringify(data),
     }
   );
-
-  if (!response.ok) {
-    throw new Error("No se pudo obtener la URL de subida");
-  }
-
-  return response.json();
 };
 
 export const completarArchivo = async (
@@ -118,39 +81,27 @@ export const completarArchivo = async (
   data: CompleteFileData,
   token: string
 ): Promise<Case> => {
-  const response = await fetch(
-    `${API_URL}/cases/${id}/file/complete`,
+  return apiRequest<Case>(
+    `/cases/${id}/file/complete`,
     {
       method: "POST",
-      headers: getHeaders(token),
+      token,
       body: JSON.stringify(data),
     }
   );
-
-  if (!response.ok) {
-    throw new Error("No se pudo completar la subida");
-  }
-
-  return response.json();
 };
 
 export const obtenerDownloadUrl = async (
   id: string,
   token: string
 ): Promise<{ downloadUrl: string; expiresIn: number }> => {
-  const response = await fetch(
-    `${API_URL}/cases/${id}/file/download-url`,
-    {
-      method: "GET",
-      headers: getHeaders(token),
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("No se pudo obtener la URL de descarga");
-  }
-
-  return response.json();
+  return apiRequest<{
+    downloadUrl: string;
+    expiresIn: number;
+  }>(`/cases/${id}/file/download-url`, {
+    method: "GET",
+    token,
+  });
 };
 
 export const subirArchivo = async (
