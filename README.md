@@ -1,10 +1,15 @@
 # Gestor de Evidencias — Frontend
+Pagina: https://gestor-evidencias-frontend.vercel.app/login
 
-Aplicación web para la gestión de casos y evidencias, desarrollada como parte de una prueba técnica.
+Aplicación web desarrollada con React y TypeScript para la gestión de casos y evidencias.
 
-El frontend permite a los usuarios autenticarse, crear y administrar casos, consultar su información y asociar archivos como evidencias mediante URLs firmadas.
+Este proyecto hace parte de una prueba técnica Full Stack y consume una API REST independiente encargada de la autenticación, autorización, persistencia de casos y gestión segura de archivos.
 
-## Tecnologías
+El frontend permite a los usuarios autenticarse, consultar y administrar sus casos, visualizar estadísticas y gestionar las evidencias asociadas.
+
+---
+
+# Tecnologías
 
 * React
 * TypeScript
@@ -14,26 +19,11 @@ El frontend permite a los usuarios autenticarse, crear y administrar casos, cons
 * Fetch API
 * Vercel
 
-## Funcionalidades
+---
 
-* Registro de usuarios.
-* Inicio y cierre de sesión.
-* Protección de rutas privadas.
-* Persistencia de sesión mediante JWT.
-* Dashboard con resumen de casos.
-* Creación de casos.
-* Consulta de casos.
-* Actualización de casos.
-* Cambio de estado del caso.
-* Eliminación de casos.
-* Carga de evidencias.
-* Descarga de evidencias.
-* Manejo centralizado de errores de la API.
-* Interfaz responsive.
+# Arquitectura
 
-## Arquitectura
-
-El proyecto está organizado por responsabilidades:
+El frontend está organizado separando las responsabilidades de las vistas, autenticación, navegación, consumo de API, tipos y componentes de interfaz.
 
 ```text
 src/
@@ -84,81 +74,37 @@ src/
 └── main.tsx
 ```
 
-### Capas principales
+La aplicación utiliza una estructura independiente para las páginas, servicios, autenticación, rutas y componentes visuales, permitiendo mantener separada la lógica de comunicación con el backend de la interfaz.
 
-**Pages**
+---
 
-Contienen las vistas y la interacción con el usuario.
+# Requisitos
 
-**Services**
-
-Centralizan las llamadas HTTP al backend.
-
-**Context**
-
-Gestiona el estado global de autenticación.
-
-**Routes**
-
-Controlan la navegación y protección de las rutas privadas.
-
-**Types**
-
-Contienen los tipos TypeScript utilizados por la aplicación.
-
-**Errors**
-
-Centraliza la representación de errores provenientes de la API.
-
-## Requisitos
-
-* Node.js 18+
+* Node.js 20+
 * npm
-* Backend del proyecto ejecutándose
-* URL disponible de la API
+* Backend del proyecto disponible
+* URL pública o local de la API
 
-## Instalación
+---
 
-Clonar el repositorio:
+# Instalación
+
+## Clonar el repositorio
 
 ```bash
 git clone <URL_DEL_REPOSITORIO>
-cd <NOMBRE_DEL_REPOSITORIO>
+cd gestor-evidencias-frontend
 ```
 
-Instalar dependencias:
+## Instalar dependencias
 
 ```bash
 npm install
 ```
 
-Crear el archivo de variables de entorno:
+## Configurar variables de entorno
 
-```bash
-cp .env.example .env
-```
-
-Configurar la URL del backend:
-
-```env
-VITE_API_URL=http://localhost:3000
-```
-
-Ejecutar el proyecto:
-
-```bash
-npm run dev
-```
-
-La aplicación estará disponible en la URL indicada por Vite, normalmente:
-
-```text
-http://localhost:5173
-```
-
-## Variables de entorno
-
-El proyecto utiliza:
+Crear un archivo `.env` tomando como referencia `.env.example`.
 
 ```env
 VITE_API_URL=
@@ -166,51 +112,250 @@ VITE_API_URL=
 
 Esta variable corresponde a la URL base del backend.
 
-No se almacenan credenciales, secretos, tokens permanentes ni claves privadas en el repositorio.
+Los valores reales de las variables de entorno no deben almacenarse en el repositorio.
 
-Se incluye un archivo `.env.example` como referencia para la configuración local.
+---
 
-## Autenticación
+# Ejecución
 
-La aplicación utiliza JWT proporcionado por el backend.
+## Desarrollo
 
-El flujo de autenticación es:
+```bash
+npm run dev
+```
+
+## Compilar
+
+```bash
+npm run build
+```
+
+## Previsualizar el build
+
+```bash
+npm run preview
+```
+
+---
+
+# Integración con el Backend
+
+El frontend consume una API REST independiente desarrollada con:
+
+* Node.js
+* TypeScript
+* Express
+* Prisma
+* PostgreSQL
+* Neon
+* JWT
+* Zod
+* Cloudflare R2
+
+La comunicación se centraliza mediante los servicios ubicados en:
+
+```text
+src/services/
+```
+
+La URL de la API se configura mediante:
+
+```env
+VITE_API_URL=
+```
+
+El frontend no contiene lógica de acceso directo a PostgreSQL, Neon o Cloudflare R2.
+
+La persistencia y las reglas de negocio son responsabilidad del backend.
+
+---
+
+# Autenticación
+
+La autenticación del frontend está integrada con el sistema JWT implementado en el backend.
+
+El flujo principal es:
 
 ```text
 Login
   ↓
-Backend valida credenciales
+Frontend envía credenciales
+  ↓
+Backend valida usuario
   ↓
 Backend genera JWT
   ↓
 Frontend almacena token
   ↓
-Frontend consulta /auth/me
+Frontend consulta usuario autenticado
   ↓
-Usuario autenticado
+AuthProvider mantiene la sesión
 ```
 
-Las rutas privadas requieren un token válido.
+El token se almacena en `localStorage` y se utiliza para realizar las peticiones autenticadas.
 
-El token se envía al backend mediante:
+Las solicitudes privadas incluyen:
 
 ```text
 Authorization: Bearer <token>
 ```
 
-### Persistencia del token
+## AuthProvider
 
-Se utiliza `localStorage` para persistir el JWT por simplicidad de implementación.
+La autenticación global se gestiona mediante React Context.
 
-Como trade-off, un token almacenado en `localStorage` puede quedar expuesto ante un ataque XSS. En una implementación de producción se podría utilizar una cookie `httpOnly`, `Secure` y `SameSite` para reducir esta exposición.
+`AuthProvider` mantiene:
 
-## Manejo de errores
+* Usuario autenticado.
+* Token.
+* Estado de carga.
+* Inicio de sesión.
+* Registro.
+* Cierre de sesión.
 
-El frontend utiliza una clase `ApiError` para representar los errores provenientes del backend.
+Cuando la aplicación inicia, se verifica si existe un token almacenado y, si existe, se consulta el usuario autenticado mediante `/auth/me`.
 
-La comunicación HTTP está centralizada mediante `apiRequest`, evitando repetir la lógica de procesamiento de respuestas en cada página.
+Si el token ya no es válido, se elimina la sesión local y el usuario vuelve al estado no autenticado.
 
-El flujo es:
+---
+
+# Protección de rutas
+
+Las rutas privadas se protegen mediante `ProtectedRoute`.
+
+La estructura principal de navegación es:
+
+```text
+/login
+/register
+
+/dashboard
+/cases
+/cases/new
+/cases/:id
+/cases/:id/edit
+```
+
+Las rutas de gestión se encuentran dentro de una ruta protegida y requieren una sesión válida.
+
+Además, `AppLayout` centraliza elementos compartidos como:
+
+* Navbar.
+* Contenedor principal.
+* Fondo general de la aplicación.
+* Estructura común de las páginas.
+
+---
+
+# Gestión de casos
+
+El frontend implementa las operaciones necesarias para administrar los casos mediante la API.
+
+Las funcionalidades incluyen:
+
+* Crear casos.
+* Listar casos.
+* Consultar detalle.
+* Editar casos.
+* Cambiar estado.
+* Eliminar casos.
+
+Los estados utilizados son:
+
+```text
+OPEN
+CLOSED
+```
+
+Cada operación utiliza los servicios definidos en:
+
+```text
+src/services/case.service.ts
+```
+
+La autorización sobre los recursos no se confía al frontend. El backend es quien valida que el usuario autenticado tenga permiso sobre el caso solicitado.
+
+---
+
+# Dashboard
+
+El dashboard presenta información resumida de los casos del usuario.
+
+Actualmente muestra:
+
+* Total de casos.
+* Casos abiertos.
+* Casos cerrados.
+* Casos con evidencia.
+
+También proporciona accesos rápidos para:
+
+* Crear un nuevo caso.
+* Consultar los casos.
+
+El dashboard consume los datos reales de la API y no utiliza información simulada.
+
+---
+
+# Gestión de evidencias
+
+El frontend implementa la integración con el sistema de archivos basado en **Cloudflare R2**.
+
+El proceso utiliza las URLs prefirmadas generadas por el backend.
+
+El frontend realiza:
+
+1. Solicitud de una URL de carga al backend.
+2. Recepción de la URL prefirmada.
+3. Carga directa del archivo hacia Cloudflare R2.
+4. Confirmación de la carga al backend.
+5. Consulta de una URL prefirmada para descargar el archivo.
+
+El archivo no se envía directamente al servidor de la API.
+
+Esto permite que el backend controle la autorización y validación mientras el contenido binario se transfiere directamente al almacenamiento.
+
+## Tipos de archivo
+
+La interfaz permite seleccionar los formatos soportados por el backend:
+
+```text
+image/jpeg
+image/png
+application/pdf
+```
+
+El límite de tamaño establecido es:
+
+```text
+5 MB
+```
+
+La validación definitiva permanece en el backend.
+
+---
+
+# Manejo de errores
+
+El frontend implementa un sistema centralizado para interpretar los errores HTTP provenientes del backend.
+
+Se creó:
+
+```text
+src/errors/api.error.ts
+```
+
+para representar los errores de la API.
+
+Las solicitudes HTTP se centralizan mediante:
+
+```text
+src/services/api.service.ts
+```
+
+Esto permite que las diferentes páginas no tengan que implementar individualmente la lógica para interpretar las respuestas HTTP.
+
+El flujo utilizado es:
 
 ```text
 Página
@@ -225,285 +370,295 @@ Respuesta HTTP
   ↓
 ApiError
   ↓
-Página muestra el mensaje al usuario
+Mensaje mostrado al usuario
 ```
 
 Se manejan principalmente:
 
-* `400` — Errores de validación.
+* `400` — Error de validación.
 * `401` — No autenticado o token inválido.
 * `403` — Operación no permitida.
 * `404` — Recurso no encontrado.
 * `409` — Conflicto.
 * `500` — Error interno.
 
-Los mensajes enviados por el backend se conservan para mostrar información útil al usuario.
+Cuando el backend proporciona un mensaje específico, el frontend lo utiliza para mostrar información más precisa al usuario.
 
-## Gestión de casos
+---
 
-Cada usuario puede administrar únicamente sus propios casos.
+# Estados de interfaz
 
-Las operaciones disponibles son:
+Las páginas contemplan diferentes estados durante la interacción con la API:
+
+* Carga.
+* Éxito.
+* Error.
+* Información vacía.
+* Operaciones en proceso.
+* Confirmación de operaciones destructivas.
+
+Esto se aplica principalmente a:
+
+* Carga de casos.
+* Creación.
+* Edición.
+* Eliminación.
+* Carga de archivos.
+* Descarga de archivos.
+* Autenticación.
+
+El objetivo es evitar que la interfaz quede en un estado indefinido mientras espera una respuesta del backend.
+
+---
+
+# Interfaz y componentes
+
+La interfaz se desarrolló utilizando **Material UI (MUI)**.
+
+Se utiliza para:
+
+* Botones.
+* Formularios.
+* Campos de entrada.
+* Cards.
+* Alertas.
+* Modales.
+* Tablas.
+* Menús.
+* Navegación.
+* Iconos.
+* Indicadores de carga.
+* Estados visuales.
+
+También se creó un tema centralizado para mantener consistencia visual en toda la aplicación.
+
+El tema define principalmente:
+
+* Colores.
+* Tipografía.
+* Bordes.
+* Botones.
+* Cards.
+* Fondo general.
+* Estilos reutilizables.
+
+La interfaz fue construida teniendo en cuenta diferentes tamaños de pantalla.
+
+---
+
+# Persistencia del token
+
+El JWT se almacena en `localStorage` para mantener la sesión del usuario al recargar la aplicación.
+
+Esta decisión simplifica la persistencia de sesión en el frontend, pero implica una consideración de seguridad: un token almacenado en `localStorage` puede quedar expuesto ante un ataque XSS.
+
+Para una implementación de producción con mayores requisitos de seguridad podría utilizarse una cookie `httpOnly`, `Secure` y `SameSite`, evitando que JavaScript pueda acceder directamente al token.
+
+---
+
+# Control de versiones
+
+El proyecto utiliza **Git** para el control de versiones y seguimiento de los cambios.
+
+El desarrollo se realizó utilizando ramas independientes por funcionalidad y tomando `desarrollo` como rama base.
+
+El flujo utilizado fue:
 
 ```text
-Crear
-  ↓
-Listar
-  ↓
-Consultar detalle
-  ↓
-Editar
-  ↓
-Cambiar estado
-  ↓
-Eliminar
+desarrollo
+    ↓
+crear rama de funcionalidad
+    ↓
+desarrollo de la funcionalidad
+    ↓
+pruebas
+    ↓
+commit
+    ↓
+push de la rama
+    ↓
+merge hacia desarrollo
+    ↓
+actualización de desarrollo
 ```
 
-Los casos utilizan los estados:
-
-* `OPEN`
-* `CLOSED`
-
-## Flujo de archivos
-
-Las evidencias no pasan directamente por el backend.
-
-Se utiliza un flujo basado en URLs firmadas:
+Las ramas siguieron una estructura como:
 
 ```text
-1. Frontend solicita URL de carga
-             ↓
-2. Backend genera URL firmada
-             ↓
-3. Frontend sube archivo directamente al almacenamiento
-             ↓
-4. Frontend informa al backend que terminó la carga
-             ↓
-5. Backend valida y registra el archivo
+feature/nombre-funcionalidad
 ```
 
-Para descargar una evidencia:
+Cada funcionalidad se desarrolló de forma independiente para mantener los cambios aislados y facilitar su integración.
+
+Una vez finalizada y validada una funcionalidad, se integraba nuevamente en `desarrollo`.
+
+Al finalizar el desarrollo, se creó la rama `main` a partir de la versión estable de `desarrollo`, utilizándola como rama principal para el despliegue.
+
+---
+
+# Pruebas
+
+El frontend fue validado mediante pruebas funcionales sobre la aplicación integrada con el backend real.
+
+Se verificaron principalmente los siguientes escenarios:
+
+* Registro.
+* Inicio de sesión.
+* Credenciales inválidas.
+* Protección de rutas.
+* Persistencia de sesión.
+* Cierre de sesión.
+* Consulta de usuario autenticado.
+* Carga del dashboard.
+* Creación de casos.
+* Listado de casos.
+* Consulta de detalle.
+* Edición de casos.
+* Cambio de estado.
+* Eliminación de casos.
+* Carga de archivos.
+* Validación de archivos.
+* Descarga de evidencias.
+* Manejo de errores provenientes de la API.
+* Estados de carga.
+* Comportamiento de la interfaz en diferentes tamaños de pantalla.
+
+No se utilizaron datos simulados para las funcionalidades principales. La aplicación consume el backend real.
+
+---
+
+# Decisiones técnicas
+
+## React + TypeScript
+
+React se utilizó para construir la interfaz y TypeScript para mantener tipado entre componentes, servicios y datos recibidos desde la API.
+
+## Vite
+
+Vite se utilizó como herramienta de construcción y desarrollo por su configuración sencilla y rápido ciclo de desarrollo.
+
+## Material UI
+
+Material UI se utilizó para construir la interfaz visual mediante componentes reutilizables.
+
+Además, se creó un tema centralizado para mantener una apariencia consistente en toda la aplicación.
+
+## React Context
+
+React Context se utilizó para manejar el estado global de autenticación y evitar pasar manualmente la información del usuario y token entre múltiples componentes.
+
+## React Router
+
+React Router se utiliza para gestionar la navegación y separar las rutas públicas de las privadas.
+
+## Services
+
+Las peticiones HTTP se mantienen en services independientes de las páginas.
+
+Esto permite separar:
+
+```text
+Interfaz
+   ↓
+Service
+   ↓
+API
+```
+
+y evita colocar directamente la lógica de comunicación HTTP dentro de los componentes visuales.
+
+## Manejo centralizado de errores
+
+Se implementó `apiRequest` como punto común para las peticiones HTTP y `ApiError` para representar los errores recibidos desde el backend.
+
+Esto permite mantener un comportamiento consistente en las diferentes páginas.
+
+## URLs prefirmadas
+
+Para las evidencias se mantiene el mismo modelo implementado por el backend:
 
 ```text
 Frontend
    ↓
-Solicita URL de descarga
+Solicita URL
    ↓
-Backend valida propietario
+Backend valida autorización
    ↓
-Backend genera URL firmada
+URL prefirmada
    ↓
-Frontend abre/descarga el archivo
+Cloudflare R2
 ```
 
-Las evidencias permanecen privadas y las URLs tienen una duración limitada.
+El frontend no necesita conocer ni manejar las credenciales de Cloudflare R2.
 
-## Validación de archivos
+---
 
-El backend controla las restricciones principales de los archivos:
+# Despliegue
 
-* Tamaño máximo: `5 MB`
-* `image/jpeg`
-* `image/png`
-* `application/pdf`
+El frontend está preparado para desplegarse en **Vercel**.
 
-El frontend también limita los tipos de archivo mostrados al usuario, pero la validación definitiva se realiza en el backend.
+La rama utilizada para producción es:
 
-## UI y diseño
+```text
+main
+```
 
-Se utiliza Material UI para construir la interfaz.
-
-El proyecto cuenta con:
-
-* Tema centralizado.
-* Componentes reutilizables de Material UI.
-* Diseño responsive.
-* Estados de carga.
-* Mensajes de error.
-* Confirmaciones para operaciones destructivas.
-* Navegación protegida.
-* Dashboard con estadísticas de casos.
-
-## Backend
-
-El frontend consume una API REST desarrollada independientemente.
-
-El backend utiliza:
-
-* Node.js
-* TypeScript
-* Express
-* Prisma
-* PostgreSQL
-* JWT
-* Zod
-* Cloudflare R2
-
-La URL de la API se configura mediante:
+La variable de entorno requerida es:
 
 ```env
-VITE_API_URL
+VITE_API_URL=<URL_DEL_BACKEND>
 ```
 
-## Ejecución en producción
+El frontend se conecta al backend desplegado como un servicio independiente.
 
-El frontend está preparado para desplegarse en Vercel.
-
-La variable de entorno requerida en producción es:
-
-```env
-VITE_API_URL=<URL_DE_LA_API>
-```
-
-### Producción
-
-Frontend:
+Arquitectura de producción:
 
 ```text
-<URL_DE_VERCEL>
+Usuario
+   ↓
+Vercel
+   ↓
+React + Vite
+   ↓
+Backend API
+   ↓
+Neon + Cloudflare R2
 ```
+---
 
-Backend:
+# Uso de Inteligencia Artificial
 
-```text
-<URL_DE_LA_API>
-```
+Durante el desarrollo se utilizó **ChatGPT** como herramienta de apoyo técnico.
 
-## Scripts
+## Uso realizado
 
-Instalar dependencias:
+ChatGPT fue utilizado principalmente para apoyar la construcción de la interfaz y la implementación de componentes.
 
-```bash
-npm install
-```
+Entre los usos realizados se encuentran:
 
-Ejecutar en desarrollo:
+* Propuestas para la estructura visual de las páginas.
+* Diseño de componentes con Material UI.
+* Creación de formularios.
+* Propuestas para el Dashboard.
+* Diseño de la navegación.
+* Propuestas de estilos y distribución de elementos.
+* Implementación de estados visuales.
+* Apoyo en la integración de componentes.
+* Revisión de errores de TypeScript relacionados con Material UI.
+* Apoyo en el manejo de errores de la API.
+* Revisión de la integración entre frontend y backend.
+* Documentación final
 
-```bash
-npm run dev
-```
+La IA tuvo un papel especialmente importante en la construcción de la parte visual, ayudando a generar y proponer componentes de Material UI y diferentes estructuras para las páginas.
 
-Construir para producción:
+## Incidentes y correcciones
 
-```bash
-npm run build
-```
+Durante el desarrollo se presentaron algunos casos en los que las propuestas generadas por ChatGPT no coincidían exactamente con la versión de Material UI utilizada en el proyecto.
 
-Previsualizar el build:
+Algunas propiedades o componentes propuestos requerían ajustes para ser compatibles con las versiones instaladas.
 
-```bash
-npm run preview
-```
+Estos problemas fueron identificados durante la compilación y ejecución de la aplicación y fueron **corregidos manualmente**, adaptando las propuestas a la API real de las dependencias utilizadas.
 
-## Decisiones técnicas
+También se realizaron ajustes manuales sobre las propuestas visuales para adaptarlas a la estructura final de la aplicación, los requisitos de la prueba técnica y la integración con el backend.
 
-### React + TypeScript
-
-Se utiliza React para construir la interfaz y TypeScript para mejorar el tipado y reducir errores durante el desarrollo.
-
-### Material UI
-
-Se eligió Material UI para disponer de componentes consistentes y responsive, además de permitir construir rápidamente una interfaz clara para la prueba técnica.
-
-### Servicios separados
-
-Las llamadas al backend se mantienen fuera de las páginas mediante services para evitar acoplar la lógica HTTP con la interfaz.
-
-### Manejo centralizado de errores
-
-Se creó `apiRequest` como punto común para procesar las respuestas HTTP y `ApiError` para representar los errores de la API.
-
-Esto permite mantener las páginas más simples y consistentes.
-
-### URLs firmadas
-
-Los archivos se transfieren directamente al almacenamiento mediante URLs firmadas para evitar utilizar el backend como intermediario del contenido binario.
-
-### Vercel
-
-Se utiliza Vercel para facilitar el despliegue del frontend y disponer de una URL pública para la evaluación.
-
-## Uso de IA
-
-Durante el desarrollo se utilizaron herramientas de inteligencia artificial como apoyo para:
-
-* Generación inicial de estructuras y componentes.
-* Revisión de código.
-* Identificación de errores de TypeScript.
-* Propuestas de organización del proyecto.
-* Apoyo en manejo de errores.
-* Revisión de flujos de autenticación.
-* Documentación técnica.
-
-### Código generado o apoyado por IA
-
-La IA se utilizó principalmente como herramienta de apoyo para:
-
-* Estructuras iniciales de componentes React.
-* Services para consumo de la API.
-* Manejo centralizado de errores.
-* Configuración de componentes Material UI.
-* Propuestas de arquitectura y organización.
-
-### Código escrito o adaptado manualmente
-
-El código fue revisado, adaptado y probado durante la implementación.
-
-Se realizaron ajustes manuales principalmente en:
-
-* Integración con la API real.
-* Rutas y navegación.
-* Flujo de autenticación.
-* Manejo de estados.
-* Flujo de carga y descarga de archivos.
-* Compatibilidad con la versión utilizada de Material UI.
-* Mensajes de error.
-* Configuración del entorno.
-
-### Error detectado durante el uso de IA
-
-Durante la implementación se encontraron propuestas que no eran compatibles directamente con la versión de Material UI utilizada, especialmente en propiedades de algunos componentes.
-
-Estas propuestas fueron revisadas y ajustadas utilizando las APIs compatibles con la versión instalada.
-
-La IA se utilizó como herramienta de apoyo, pero las decisiones finales, integración y pruebas fueron realizadas sobre el proyecto ejecutable.
-
-## Pruebas finales
-
-Antes del despliegue se debe verificar:
-
-* Registro de usuario.
-* Login correcto.
-* Login con credenciales incorrectas.
-* Acceso a rutas privadas sin autenticación.
-* Persistencia de sesión.
-* Logout.
-* Creación de casos.
-* Listado de casos.
-* Edición de casos.
-* Cambio de estado.
-* Eliminación de casos.
-* Carga de archivos válidos.
-* Rechazo de archivos inválidos.
-* Descarga de evidencias.
-* Manejo de errores del backend.
-* Funcionamiento de la aplicación desplegada.
-
-## Repositorio
-
-```text
-<URL_PUBLICA_DEL_REPOSITORIO>
-```
-
-## Demo
-
-```text
-<URL_DE_VERCEL>
-```
-
-## Credenciales de demostración
-
-```text
-Correo: <CORREO_DEMO>
-Contraseña: <CONTRASEÑA_DEMO>
-```
+La IA se utilizó como herramienta de apoyo, mientras que la implementación final, integración, ejecución y validación fueron realizadas manualmente sobre el proyecto.
