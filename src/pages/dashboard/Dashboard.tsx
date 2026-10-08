@@ -1,26 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-
 import { useNavigate } from "react-router-dom";
-
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CircularProgress,
-  Grid,
-  Stack,
-  Typography,
-} from "@mui/material";
-
+import { Alert, Box, Button, Card, CardContent, CircularProgress, Grid, Stack, Typography,} from "@mui/material";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import FolderOpenOutlinedIcon from "@mui/icons-material/FolderOpenOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-
 import { useAuth } from "../../context/useAuth";
 import { listarCasos } from "../../services/case.service";
 import type { Case } from "../../types/case.types";
@@ -37,12 +23,10 @@ export const Dashboard = () => {
   useEffect(() => {
     const cargarCasos = async () => {
       if (!token) return;
-
       try {
+        const data = await listarCasos(token);
         setLoading(true);
         setError("");
-
-        const data = await listarCasos(token);
         setCasos(data);
       } catch (error) {
         if (error instanceof ApiError) {
@@ -59,17 +43,9 @@ export const Dashboard = () => {
   }, [token]);
 
   const estadisticas = useMemo(() => {
-    const abiertos = casos.filter(
-      (caso) => caso.estado === "OPEN"
-    ).length;
-
-    const cerrados = casos.filter(
-      (caso) => caso.estado === "CLOSED"
-    ).length;
-
-    const conArchivo = casos.filter(
-      (caso) => caso.fileKey
-    ).length;
+    const abiertos = casos.filter((caso) => caso.estado === "OPEN").length;
+    const cerrados = casos.filter((caso) => caso.estado === "CLOSED").length;
+    const conArchivo = casos.filter((caso) => caso.fileKey).length;
 
     return {
       total: casos.length,

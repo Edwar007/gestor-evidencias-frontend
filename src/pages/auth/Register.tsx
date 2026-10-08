@@ -1,23 +1,9 @@
 import { useState } from "react";
-
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CircularProgress,
-  InputAdornment,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-
+import { Alert, Box, Button, Card, CircularProgress, InputAdornment, Stack, TextField, Typography,} from "@mui/material";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
-
 import { Link, useNavigate } from "react-router-dom";
-
 import { useAuth } from "../../context/useAuth";
 import { ApiError } from "../../errors/api.error";
 
@@ -28,15 +14,11 @@ export const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     setError("");
 
     if (!email.trim() || !password || !confirmPassword) {
@@ -56,12 +38,10 @@ export const Register = () => {
 
     try {
       setLoading(true);
-
       await register({
         email: email.trim(),
         password,
       });
-
       navigate("/login");
     } catch (error) {
       if (error instanceof ApiError) {

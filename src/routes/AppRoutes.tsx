@@ -1,14 +1,12 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-
 import { Login } from "../pages/auth/Login";
 import { Register } from "../pages/auth/Register";
 import { Dashboard } from "../pages/dashboard/Dashboard";
-
 import { Cases } from "../pages/cases/Cases";
 import { CreateCase } from "../pages/cases/CreateCase";
 import { CaseDetail } from "../pages/cases/CaseDetail";
 import { EditCase } from "../pages/cases/EditCase";
-
+import { NotFound } from "../components/layout/NotFound";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AppLayout } from "../components/layout/AppLayout";
 
@@ -34,7 +32,7 @@ export const AppRoutes = () => {
         {/* 404 */}
         <Route
           path="*"
-          element={<div>Página no encontrada</div>}
+          element={<NotFound/>}
         />
       </Routes>
     </BrowserRouter>

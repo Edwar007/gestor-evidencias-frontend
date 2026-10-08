@@ -16,18 +16,15 @@ export const registrarUsuario = async (
   });
 };
 
-export const iniciarSesion = async (
-  data: LoginData
-): Promise<LoginResponse> => {
+export const iniciarSesion = async (data: LoginData): Promise<LoginResponse> => {
   return apiRequest<LoginResponse>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+  );
 };
 
-export const obtenerUsuarioActual = async (
-  token: string
-): Promise<User> => {
+export const obtenerUsuarioActual = async (token: string): Promise<User> => {
   return apiRequest<User>("/auth/me", {
     method: "GET",
     token,

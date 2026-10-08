@@ -1,21 +1,6 @@
-import {
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
-
-import {
-  iniciarSesion,
-  obtenerUsuarioActual,
-  registrarUsuario,
-} from "../services/auth.service";
-
-import type {
-  LoginData,
-  RegisterData,
-  User,
-} from "../types/auth.types";
-
+import {useEffect,useState,type ReactNode,} from "react";
+import {iniciarSesion,obtenerUsuarioActual,registrarUsuario,} from "../services/auth.service";
+import type {LoginData,RegisterData,User,} from "../types/auth.types";
 import { AuthContext } from "./AuthContext";
 
 interface AuthProviderProps {
@@ -24,11 +9,7 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token")
-  );
-
+  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,7 +36,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (data: LoginData) => {
     const resultado = await iniciarSesion(data);
-
     localStorage.setItem("token", resultado.token);
     setToken(resultado.token);
 

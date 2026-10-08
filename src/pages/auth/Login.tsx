@@ -1,23 +1,9 @@
 import { useState } from "react";
-
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CircularProgress,
-  InputAdornment,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-
+import {Alert,Box,Button,Card,CircularProgress,InputAdornment,Stack,TextField,Typography,} from "@mui/material";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import FolderSharedOutlinedIcon from "@mui/icons-material/FolderSharedOutlined";
-
 import { Link, useNavigate } from "react-router-dom";
-
 import { useAuth } from "../../context/useAuth";
 import { ApiError } from "../../errors/api.error";
 
@@ -27,25 +13,18 @@ export const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     setError("");
-
     if (!email.trim() || !password) {
       setError("Completa el correo y la contraseña.");
       return;
     }
-
     try {
       setLoading(true);
-
       await login({
         email: email.trim(),
         password,

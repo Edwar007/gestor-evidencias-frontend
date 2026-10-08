@@ -1,37 +1,21 @@
 import { apiRequest } from "./api.service";
+import type { Case, CreateCaseData, UpdateCaseData, UploadFileData, UploadUrlResponse, CompleteFileData,} from "../types/case.types";
 
-import type {
-  Case,
-  CreateCaseData,
-  UpdateCaseData,
-  UploadFileData,
-  UploadUrlResponse,
-  CompleteFileData,
-} from "../types/case.types";
-
-export const listarCasos = async (
-  token: string
-): Promise<Case[]> => {
+export const listarCasos = async (token: string): Promise<Case[]> => {
   return apiRequest<Case[]>("/cases", {
     method: "GET",
     token,
   });
 };
 
-export const obtenerCaso = async (
-  id: string,
-  token: string
-): Promise<Case> => {
+export const obtenerCaso = async (id: string, token: string): Promise<Case> => {
   return apiRequest<Case>(`/cases/${id}`, {
     method: "GET",
     token,
   });
 };
 
-export const crearCaso = async (
-  data: CreateCaseData,
-  token: string
-): Promise<Case> => {
+export const crearCaso = async (data: CreateCaseData, token: string): Promise<Case> => {
   return apiRequest<Case>("/cases", {
     method: "POST",
     token,
@@ -39,11 +23,7 @@ export const crearCaso = async (
   });
 };
 
-export const actualizarCaso = async (
-  id: string,
-  data: UpdateCaseData,
-  token: string
-): Promise<Case> => {
+export const actualizarCaso = async (id: string, data: UpdateCaseData, token: string): Promise<Case> => {
   return apiRequest<Case>(`/cases/${id}`, {
     method: "PATCH",
     token,
@@ -51,21 +31,14 @@ export const actualizarCaso = async (
   });
 };
 
-export const eliminarCaso = async (
-  id: string,
-  token: string
-): Promise<void> => {
+export const eliminarCaso = async (id: string, token: string): Promise<void> => {
   await apiRequest<void>(`/cases/${id}`, {
     method: "DELETE",
     token,
   });
 };
 
-export const obtenerUploadUrl = async (
-  id: string,
-  data: UploadFileData,
-  token: string
-): Promise<UploadUrlResponse> => {
+export const obtenerUploadUrl = async (id: string, data: UploadFileData, token: string): Promise<UploadUrlResponse> => {
   return apiRequest<UploadUrlResponse>(
     `/cases/${id}/file/upload-url`,
     {
@@ -76,11 +49,7 @@ export const obtenerUploadUrl = async (
   );
 };
 
-export const completarArchivo = async (
-  id: string,
-  data: CompleteFileData,
-  token: string
-): Promise<Case> => {
+export const completarArchivo = async (id: string, data: CompleteFileData, token: string): Promise<Case> => {
   return apiRequest<Case>(
     `/cases/${id}/file/complete`,
     {
@@ -91,10 +60,7 @@ export const completarArchivo = async (
   );
 };
 
-export const obtenerDownloadUrl = async (
-  id: string,
-  token: string
-): Promise<{ downloadUrl: string; expiresIn: number }> => {
+export const obtenerDownloadUrl = async (id: string, token: string): Promise<{ downloadUrl: string; expiresIn: number }> => {
   return apiRequest<{
     downloadUrl: string;
     expiresIn: number;
@@ -104,10 +70,7 @@ export const obtenerDownloadUrl = async (
   });
 };
 
-export const subirArchivo = async (
-  uploadUrl: string,
-  file: File
-): Promise<void> => {
+export const subirArchivo = async (uploadUrl: string, file: File): Promise<void> => {
   const response = await fetch(uploadUrl, {
     method: "PUT",
     headers: {

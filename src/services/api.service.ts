@@ -6,19 +6,13 @@ interface ApiRequestOptions extends RequestInit {
   token?: string;
 }
 
-export const apiRequest = async <T>(
-  endpoint: string,
-  options: ApiRequestOptions = {}
-): Promise<T> => {
+export const apiRequest = async <T>(endpoint: string, options: ApiRequestOptions = {} ): Promise<T> => {
   const { token, headers, ...requestOptions } = options;
-
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...requestOptions,
     headers: {
       "Content-Type": "application/json",
-      ...(token && {
-        Authorization: `Bearer ${token}`,
-      }),
+      ...(token && {Authorization: `Bearer ${token}`,}),
       ...headers,
     },
   });
